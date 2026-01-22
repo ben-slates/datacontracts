@@ -1,7 +1,6 @@
 # `datacontracts`: Minimal Data Contracts for Pandas
 
 [![PyPI version](https://img.shields.io/pypi/v/datacontracts.svg)](https://pypi.org/project/datacontracts/)
-[![Python versions](https://img.shields.io/pypi/pyversions/datacontracts.svg)](https://pypi.org/project/datacontracts/)
 [![License](https://img.shields.io/pypi/l/datacontracts.svg)](https://pypi.org/project/datacontracts/)
 
 
