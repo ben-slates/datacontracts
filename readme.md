@@ -2,7 +2,8 @@
 
 [![PyPI version](https://img.shields.io/pypi/v/datacontracts.svg)](https://pypi.org/project/datacontracts/)
 [![Python versions](https://img.shields.io/pypi/pyversions/datacontracts.svg)](https://pypi.org/project/datacontracts/)
-[![License](https://img.shields.io/github/license/ben-slates/datacontracts.svg)](https://github.com/ben-slates/datacontracts/blob/main/LICENSE)
+[![License](https://img.shields.io/pypi/l/datacontracts.svg)](https://pypi.org/project/datacontracts/)
+
 
 A small Python library for enforcing **data contracts** on `pandas` DataFrames.
 
