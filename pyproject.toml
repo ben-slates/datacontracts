@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "datacontracts"
+version = "0.1.1"
+description = "Simple data contracts for pandas DataFrames"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+authors = [
+    { name = "Umer" }
+]
+
+dependencies = [
+    "pandas"
+]
+
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "License :: OSI Approved :: MIT License",
+]
+
+[project.urls]
+Homepage = "https://github.com/ben-slates/datacontracts"
+Repository = "https://github.com/ben-slates/datacontracts"
+Issues = "https://github.com/ben-slates/datacontracts/issues"
