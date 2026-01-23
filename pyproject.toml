@@ -4,14 +4,14 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "datacontracts"
-version = "0.1.1"
+version = "0.1.2"
 description = "Simple data contracts for pandas DataFrames"
 readme = "README.md"
 requires-python = ">=3.9"
 license = { text = "MIT" }
 
 authors = [
-    { name = "Umer" }
+    { name = "M.Umer Farooq" }
 ]
 
 dependencies = [

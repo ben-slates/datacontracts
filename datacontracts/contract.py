@@ -6,12 +6,6 @@ from .errors import ContractError
 class Contract:
     @classmethod
     def columns(cls):
-        """
-        Find all Column definitions inside the contract class.
-        Example:
-            class Users(Contract):
-                age = Column(int)
-        """
         return {
             name: value
             for name, value in cls.__dict__.items()
@@ -20,37 +14,51 @@ class Contract:
 
     @classmethod
     def validate(cls, df: pd.DataFrame):
-        """
-        Validate a pandas DataFrame against the contract.
-        """
         errors = []
 
         for name, col in cls.columns().items():
-            # 1. Column must exist
+
+            # 1. Column existence
             if name not in df.columns:
                 errors.append(f"Missing column: {name}")
                 continue
 
             series = df[name]
 
-            # 2. Type check
-            if not series.map(lambda x: isinstance(x, col.dtype)).all():
-                errors.append(f"Column '{name}' has wrong type")
+            # 2. Type check (ALL invalid)
+            invalid = series[~series.map(lambda x: isinstance(x, col.dtype))]
+            for idx, value in invalid.items():
+                errors.append(
+                    f"Column '{name}' has wrong type "
+                    f"(row {idx}, value={value})"
+                )
 
-            # 3. Min check
+            # 3. Min check (ALL invalid)
             if col.min is not None:
-                if (series < col.min).any():
-                    errors.append(f"Column '{name}' below min {col.min}")
+                invalid = series[series < col.min]
+                for idx, value in invalid.items():
+                    errors.append(
+                        f"Column '{name}' below min {col.min} "
+                        f"(row {idx}, value={value})"
+                    )
 
-            # 4. Max check
+            # 4. Max check (ALL invalid)
             if col.max is not None:
-                if (series > col.max).any():
-                    errors.append(f"Column '{name}' above max {col.max}")
+                invalid = series[series > col.max]
+                for idx, value in invalid.items():
+                    errors.append(
+                        f"Column '{name}' above max {col.max} "
+                        f"(row {idx}, value={value})"
+                    )
 
-            # 5. Allowed values check
+            # 5. Allowed values check (ALL invalid)
             if col.allowed is not None:
-                if not series.isin(col.allowed).all():
-                    errors.append(f"Column '{name}' has invalid values")
+                invalid = series[~series.isin(col.allowed)]
+                for idx, value in invalid.items():
+                    errors.append(
+                        f"Column '{name}' has invalid value "
+                        f"(row {idx}, value={value})"
+                    )
 
         if errors:
             raise ContractError(errors)
