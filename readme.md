@@ -3,10 +3,9 @@
 [![PyPI version](https://img.shields.io/pypi/v/datacontracts.svg)](https://pypi.org/project/datacontracts/)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-A small Python library for enforcing data contracts on **pandas DataFrames**.
+A small Python library for enforcing **business-friendly data contracts** on `pandas` DataFrames.
 
-`datacontracts` lets you define simple rules for your data (types, ranges, allowed values)
-and **fail fast** when data violates those rules — with clear, row-level error messages.
+**v0.1.3** introduces expressive, human-readable rules (`lt`, `gt`, `between`) that allow you to define data quality expectations the way you think about them. `datacontracts` validates these contracts and **reports all invalid rows** with clear, actionable error messages.
 
 This library is intentionally minimal and explicit.
 
@@ -34,7 +33,7 @@ pip install datacontracts
 
 ---
 
-## Usage
+## Usage (v0.1.3)
 
 The core workflow uses Python classes to define the contract, making it explicit and readable.
 
@@ -46,11 +45,15 @@ Define your contract by inheriting from `Contract` and using `Column` objects to
 ```python
 from datacontracts import Contract, Column
 
-class Users(Contract):
-    # Column(expected_type, min=..., max=..., allowed=[...], unique=...)
-    user_id = Column(int, min=1)
-    age = Column(int, min=0, max=120)
-    country = Column(str, allowed=["US", "UK", "CA"])
+class AuthorRules(Contract):
+    # Expressive rules: must be less than 100
+    author_followers = Column(int, lt=100)
+    
+    # Expressive range: must be between 1 and 9 (inclusive)
+    author_books = Column(int, between=(1, 9))
+    
+    # Traditional rule: must be greater than 50
+    user_rating = Column(float, gt=50)
 ```
 
 #### 2. Validate a DataFrame
@@ -60,53 +63,50 @@ Pass your DataFrame to the static `validate()` method.
 import pandas as pd
 
 df = pd.DataFrame({
-    "user_id": [1, 2, 3],
-    "age": [25, 999, 150],
-    "country": ["US", "UK", "CA"]
+    "author_followers": [99, 120, 50],
+    "author_books": [5, 15, 0],
+    "user_rating": [55.0, 49.9, 80.0]
 })
 
-Users.validate(df)
+AuthorRules.validate(df)
 ```
 
-#### Output (v0.1.2 - Row-Level Errors)
-When validation fails, `datacontracts` reports *all* invalid rows with clear, actionable details:
+#### Output (Comprehensive Reporting)
+v0.1.3 reports *every* violation across *all* columns with clear, human-readable messages:
 
 ```
 ContractError:
-Column 'age' above max 120 (row 1, value=999)
-Column 'age' above max 120 (row 2, value=150)
+Column 'author_followers' must be < 100 (row 1, value=120)
+Column 'author_books' must be between 1 and 9 (row 2, value=15)
+Column 'author_books' must be between 1 and 9 (row 2, value=0)
+Column 'user_rating' must be > 50 (row 1, value=49.9)
 ```
 
-Each error specifies:
-*   The column name
-*   The row number (DataFrame index)
-*   The offending value
+This makes debugging and data cleaning much faster. If all checks pass, the method returns silently.
 
-If all checks pass, the method returns silently.
-
-### Common Use Cases
+### Typical Real-World Use Cases
 
 `datacontracts` is ideal for validating data at critical hand-off points:
 
-*   **Database Exports:** Ensuring data pulled from a database conforms to expectations.
-*   **User-Uploaded CSVs:** Providing immediate, clear feedback on data quality.
-*   **ETL Pipelines:** Stopping bad data before it enters the warehouse.
+*   **CSV/Excel Files:** Providing immediate, clear feedback on user-uploaded data quality.
+*   **ETL Pipelines:** Stopping bad data before it enters the data warehouse.
 *   **Pre-ML Validation:** Guaranteeing model inputs meet feature requirements.
 
 ---
 
-## Contract Specification Details
+## Contract Specification Details (v0.1.3)
 
-The `Column` object supports the following constraints:
+The `Column` object supports the following constraints, allowing you to define rules the way you think about data:
 
 | Constraint | Type | Description |
 | :--- | :--- | :--- |
 | **Type** | `type` (e.g., `int`, `str`, `float`) | The required Python type for the column's values. |
-| `min` | `Number` | The minimum inclusive value allowed. |
-| `max` | `Number` | The maximum inclusive value allowed. |
+| `lt` | `Number` | **Less than** (e.g., `lt=100` means `< 100`). |
+| `gt` | `Number` | **Greater than** (e.g., `gt=50` means `> 50`). |
+| `between` | `Tuple[Number, Number]` | **Inclusive range** (e.g., `between=(1, 9)` means `1 <= value <= 9`). |
 | `allowed` | `list` or `set` | A collection of all permissible categorical values. |
 | `unique` | `bool` | If `True`, all values in the column must be unique (no duplicates). |
-| **Existence** | (Implicit) | The column must exist in the DataFrame. |
+| `min` / `max` | `Number` | Traditional minimum/maximum (still supported, but `lt`/`gt` are recommended for clarity). |
 
 ---
 
