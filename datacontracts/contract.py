@@ -18,40 +18,66 @@ class Contract:
 
         for name, col in cls.columns().items():
 
-            # 1. Column existence
             if name not in df.columns:
                 errors.append(f"Missing column: {name}")
                 continue
 
             series = df[name]
 
-            # 2. Type check (ALL invalid)
+            # Type check
             invalid = series[~series.map(lambda x: isinstance(x, col.dtype))]
             for idx, value in invalid.items():
                 errors.append(
-                    f"Column '{name}' has wrong type "
-                    f"(row {idx}, value={value})"
+                    f"Column '{name}' has wrong type (row {idx}, value={value})"
                 )
 
-            # 3. Min check (ALL invalid)
+            # Min check
             if col.min is not None:
                 invalid = series[series < col.min]
                 for idx, value in invalid.items():
                     errors.append(
-                        f"Column '{name}' below min {col.min} "
+                        f"Column '{name}' must be >= {col.min} "
                         f"(row {idx}, value={value})"
                     )
 
-            # 4. Max check (ALL invalid)
+            # Max check
             if col.max is not None:
                 invalid = series[series > col.max]
                 for idx, value in invalid.items():
                     errors.append(
-                        f"Column '{name}' above max {col.max} "
+                        f"Column '{name}' must be <= {col.max} "
                         f"(row {idx}, value={value})"
                     )
 
-            # 5. Allowed values check (ALL invalid)
+            # Less than check
+            if col.lt is not None:
+                invalid = series[series >= col.lt]
+                for idx, value in invalid.items():
+                    errors.append(
+                        f"Column '{name}' must be < {col.lt} "
+                        f"(row {idx}, value={value})"
+                    )
+
+            # Greater than check
+            if col.gt is not None:
+                invalid = series[series <= col.gt]
+                for idx, value in invalid.items():
+                    errors.append(
+                        f"Column '{name}' must be > {col.gt} "
+                        f"(row {idx}, value={value})"
+                    )
+
+            # Between check (ONLY allowed range)
+            if col.between is not None:
+                low, high = col.between
+                invalid = series[(series < low) | (series > high)]
+                for idx, value in invalid.items():
+                    errors.append(
+                        f"Column '{name}' must be between {low} and {high} "
+                        f"(row {idx}, value={value})"
+                    )
+
+            # Allowed values
             if col.allowed is not None:
                 invalid = series[~series.isin(col.allowed)]
                 for idx, value in invalid.items():
