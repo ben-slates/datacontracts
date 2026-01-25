@@ -8,6 +8,7 @@ class Column:
         lt=None,
         gt=None,
         between=None,
+        nullable=False,
     ):
         self.dtype = dtype
         self.min = min
@@ -16,3 +17,4 @@ class Column:
         self.lt = lt
         self.gt = gt
         self.between = between
+        self.nullable = nullable
