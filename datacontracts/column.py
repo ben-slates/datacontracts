@@ -9,6 +9,7 @@ class Column:
         gt=None,
         between=None,
         nullable=False,
+        autocorrect=None,  # None | "clip" | "null"
     ):
         self.dtype = dtype
         self.min = min
@@ -18,3 +19,4 @@ class Column:
         self.gt = gt
         self.between = between
         self.nullable = nullable
+        self.autocorrect = autocorrect
